@@ -21,19 +21,48 @@ class FlutterPkid {
   Future<dynamic> getPKidDoc(String key, Map<String, dynamic> keyPair) async {
     Map<String, String> requestHeaders = {'Content-type': 'application/json'};
 
-    print('$pKidUrl/documents/${hex.encode(keyPair['publicKey'])}/$key');
-    Response res = await http.get(Uri.parse('$pKidUrl/documents/${hex.encode(keyPair['publicKey'])}/$key'),
-        headers: requestHeaders);
+    Response res;
+    try {
+      print('$pKidUrl/documents/${hex.encode(keyPair['publicKey'])}/$key');
 
-    Map<String, dynamic> data = jsonDecode(res.body);
-    Uint8List verified = await verifyData(data['data'], keyPair['publicKey']);
+      res = await http.get(Uri.parse('$pKidUrl/documents/${hex.encode(keyPair['publicKey'])}/$key'),
+          headers: requestHeaders);
+    } catch (e) {
+      String status = 'No Status';
+
+      if (e.response && e.response.status) {
+        status = e.response.status;
+      }
+
+      return {'status': status, 'error': e.message};
+    }
+
+    Uint8List verified;
+    try {
+      Map<String, dynamic> data = jsonDecode(res.body);
+      verified = await verifyData(data['data'], keyPair['publicKey']);
+    } catch (e) {
+      return {'error': 'Could not verify the data with the given keypair', verified: false};
+    }
+
     Map<String, dynamic> decodedData = jsonDecode(utf8.decode(verified));
 
     if (decodedData['is_encrypted'] == 0) {
       return {'success': true, 'data': decodedData['payload'], 'verified': true, 'data_version': data['data_version']};
     }
 
-    String decryptedData = await decryptPKid(decodedData['payload'], keyPair['publicKey'], keyPair['privateKey']);
+    String decryptedData;
+
+    try {
+      decryptedData = await decryptPKid(decodedData['payload'], keyPair['publicKey'], keyPair['privateKey']);
+    } catch (e) {
+      return {
+        'error': 'could not decrypt data',
+        verified: true,
+        'decrypted': false,
+        'data_version': decodedData['data_version']
+      };
+    }
 
     return {
       'success': true,
