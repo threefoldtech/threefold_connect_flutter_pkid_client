@@ -1,7 +1,7 @@
 name: flutter_pkid
 description: Flutter for Pkid
 version: 0.0.1
-homepage: https://github.com/LennertDefauw1/pkid-flutter-client
+homepage: https://github.com/threefoldtech/flutter-pkid-client
 
 publish_to: "none"
 
