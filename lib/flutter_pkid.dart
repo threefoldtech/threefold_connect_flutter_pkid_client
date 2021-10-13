@@ -48,7 +48,7 @@ class FlutterPkid {
     Map<String, dynamic> decodedData = jsonDecode(utf8.decode(verified));
 
     if (decodedData['is_encrypted'] == 0) {
-      return {'success': true, 'data': decodedData['payload'], 'verified': true, 'data_version': data['data_version']};
+      return {'success': true, 'data': decodedData['payload'], 'verified': true, 'data_version': decodedData['data_version']};
     }
 
     String decryptedData;
