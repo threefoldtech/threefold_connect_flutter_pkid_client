@@ -29,12 +29,7 @@ class FlutterPkid {
           headers: requestHeaders);
     } catch (e) {
       String status = 'No Status';
-
-      if (e.response && e.response.status) {
-        status = e.response.status;
-      }
-
-      return {'status': status, 'error': e.message};
+      return {'status': status, 'error': e};
     }
 
     Uint8List verified;
@@ -42,7 +37,7 @@ class FlutterPkid {
       Map<String, dynamic> data = jsonDecode(res.body);
       verified = await verifyData(data['data'], keyPair['publicKey']);
     } catch (e) {
-      return {'error': 'Could not verify the data with the given keypair', verified: false};
+      return {'error': 'Could not verify the data with the given keypair', 'verified': false};
     }
 
     Map<String, dynamic> decodedData = jsonDecode(utf8.decode(verified));
