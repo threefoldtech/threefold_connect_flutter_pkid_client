@@ -18,7 +18,7 @@ dependencies:
       url: https://github.com/jimbertools/flutter_sodium
 
   crypto: ^2.1.5
-  http: ^0.12.0
+  http: ^0.12.2
 
 dev_dependencies:
   flutter_test:
