@@ -16,6 +16,7 @@ dependencies:
   flutter_sodium: ^0.2.0
   crypto: ^3.0.1
   http: ^0.13.3
+  hex: ^0.2.0
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:convert/convert.dart';
 import 'package:flutter/services.dart';
+import 'package:hex/hex.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:typed_data';
@@ -23,9 +23,9 @@ class FlutterPkid {
 
     Response res;
     try {
-      print('$pKidUrl/documents/${hex.encode(keyPair['publicKey'])}/$key');
+      print('$pKidUrl/documents/${HEX.encode(keyPair['publicKey'])}/$key');
 
-      res = await http.get(Uri.parse('$pKidUrl/documents/${hex.encode(keyPair['publicKey'])}/$key'),
+      res = await http.get(Uri.parse('$pKidUrl/documents/${HEX.encode(keyPair['publicKey'])}/$key'),
           headers: requestHeaders);
     } catch (e) {
       String status = 'No Status';
@@ -76,8 +76,8 @@ class FlutterPkid {
     Map<String, dynamic> payloadContainer = {'is_encrypted': 1, 'payload': handledPayload, 'data_version': 1};
 
     try {
-      print('$pKidUrl/documents/${hex.encode(keyPair['publicKey'])}/$key');
-      return await http.put(Uri.parse('$pKidUrl/documents/${hex.encode(keyPair['publicKey'])}/$key'),
+      print('$pKidUrl/documents/${HEX.encode(keyPair['publicKey'])}/$key');
+      return await http.put(Uri.parse('$pKidUrl/documents/${HEX.encode(keyPair['publicKey'])}/$key'),
           body: json.encode(await signEncode(jsonEncode(payloadContainer), keyPair['privateKey'])),
           headers: {
             'Content-Type': 'application/json',
