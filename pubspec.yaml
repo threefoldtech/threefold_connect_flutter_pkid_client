@@ -17,6 +17,7 @@ dependencies:
   crypto: ^3.0.1
   http: ^0.13.3
   hex: ^0.2.0
+  bip39: ^1.0.6
 
 dev_dependencies:
   flutter_test:

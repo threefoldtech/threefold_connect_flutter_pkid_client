@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:flutter_sodium/flutter_sodium.dart';
 import 'package:hex/hex.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -11,21 +12,22 @@ import 'helpers/helpers.dart';
 
 class FlutterPkid {
   String pKidUrl = '';
-  dynamic keyPair;
+  KeyPair keyPair = KeyPair(pk: new Uint8List(0), sk: new Uint8List(0));
 
-  FlutterPkid(String pKidUrl, dynamic keyPair) {
+  FlutterPkid(String pKidUrl, KeyPair keyPair) {
     this.pKidUrl = pKidUrl;
     this.keyPair = keyPair;
   }
 
-  Future<dynamic> getPKidDoc(String key, Map<String, dynamic> keyPair) async {
+  Future<dynamic> getPKidDoc(String key, KeyPair keyPair) async {
     Map<String, String> requestHeaders = {'Content-type': 'application/json'};
 
     Response res;
     try {
-      print('$pKidUrl/documents/${HEX.encode(keyPair['publicKey'])}/$key');
+      print('$pKidUrl/documents/${HEX.encode(keyPair.pk)}/$key');
 
-      res = await http.get(Uri.parse('$pKidUrl/documents/${HEX.encode(keyPair['publicKey'])}/$key'),
+      res = await http.get(
+          Uri.parse('$pKidUrl/documents/${HEX.encode(keyPair.pk)}/$key'),
           headers: requestHeaders);
     } catch (e) {
       String status = 'No Status';
@@ -35,21 +37,30 @@ class FlutterPkid {
     Uint8List verified;
     try {
       Map<String, dynamic> data = jsonDecode(res.body);
-      verified = await verifyData(data['data'], keyPair['publicKey']);
+      verified = await verifyData(data['data'], keyPair.pk);
     } catch (e) {
-      return {'error': 'Could not verify the data with the given keypair', 'verified': false};
+      return {
+        'error': 'Could not verify the data with the given keypair',
+        'verified': false
+      };
     }
 
     Map<String, dynamic> decodedData = jsonDecode(utf8.decode(verified));
 
     if (decodedData['is_encrypted'] == 0) {
-      return {'success': true, 'data': decodedData['payload'], 'verified': true, 'data_version': decodedData['data_version']};
+      return {
+        'success': true,
+        'data': decodedData['payload'],
+        'verified': true,
+        'data_version': decodedData['data_version']
+      };
     }
 
     String decryptedData;
 
     try {
-      decryptedData = await decryptPKid(decodedData['payload'], keyPair['publicKey'], keyPair['privateKey']);
+      decryptedData =
+          decryptPKid(decodedData['payload'], keyPair.pk, keyPair.sk);
     } catch (e) {
       return {
         'error': 'could not decrypt data',
@@ -68,20 +79,31 @@ class FlutterPkid {
     };
   }
 
-  Future<Response> setPKidDoc(String key, String payload, Map<String, dynamic> keyPair) async {
+  Future<Response> setPKidDoc(
+      String key, String payload, KeyPair keyPair) async {
     int timestamp = new DateTime.now().millisecondsSinceEpoch;
-    Map<String, dynamic> requestHeaders = {'intent': 'pkid.store', 'timestamp': timestamp};
-    String handledPayload = await encryptPKid(payload, keyPair['publicKey']);
+    Map<String, dynamic> requestHeaders = {
+      'intent': 'pkid.store',
+      'timestamp': timestamp
+    };
+    String handledPayload = encryptPKid(payload, keyPair.pk);
 
-    Map<String, dynamic> payloadContainer = {'is_encrypted': 1, 'payload': handledPayload, 'data_version': 1};
+    Map<String, dynamic> payloadContainer = {
+      'is_encrypted': 1,
+      'payload': handledPayload,
+      'data_version': 1
+    };
 
     try {
-      print('$pKidUrl/documents/${HEX.encode(keyPair['publicKey'])}/$key');
-      return await http.put(Uri.parse('$pKidUrl/documents/${HEX.encode(keyPair['publicKey'])}/$key'),
-          body: json.encode(await signEncode(jsonEncode(payloadContainer), keyPair['privateKey'])),
+      print('$pKidUrl/documents/${HEX.encode(keyPair.pk)}/$key');
+      return await http.put(
+          Uri.parse('$pKidUrl/documents/${HEX.encode(keyPair.pk)}/$key'),
+          body: json.encode(
+              await signEncode(jsonEncode(payloadContainer), keyPair.sk)),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': await signEncode(jsonEncode(requestHeaders), keyPair['privateKey'])
+            'Authorization':
+                await signEncode(jsonEncode(requestHeaders), keyPair.sk)
           });
     } catch (e) {
       print(e);
