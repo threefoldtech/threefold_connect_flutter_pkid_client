@@ -4,9 +4,11 @@ import 'dart:typed_data';
 import 'package:flutter_sodium/flutter_sodium.dart';
 
 Future<String> encryptPKid(String json, Uint8List bobPublicKey) async {
-  Uint8List message = utf8.encode(json);
+  List<int> message = utf8.encode(json);
+  Uint8List encodedMessage = Uint8List.fromList(message);
+
   Uint8List publicKey = await Sodium.cryptoSignEd25519PkToCurve25519(bobPublicKey);
-  Uint8List encryptedData = await Sodium.cryptoBoxSeal(message, publicKey);
+  Uint8List encryptedData = await Sodium.cryptoBoxSeal(encodedMessage, publicKey);
   return base64.encode(encryptedData);
 }
 

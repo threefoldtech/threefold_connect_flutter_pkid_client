@@ -6,19 +6,16 @@ homepage: https://github.com/threefoldtech/flutter-pkid-client
 publish_to: "none"
 
 environment:
-  sdk: ">=2.10.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
   flutter: ">=1.20.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  flutter_sodium:
-    git:
-      url: https://github.com/jimbertools/flutter_sodium
-
-  crypto: ^2.1.5
-  http: ^0.12.2
+  flutter_sodium: ^0.2.0
+  crypto: ^3.0.1
+  http: ^0.13.3
 
 dev_dependencies:
   flutter_test:
