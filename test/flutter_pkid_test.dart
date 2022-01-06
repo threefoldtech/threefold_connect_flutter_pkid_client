@@ -35,8 +35,8 @@ void main() {
 
     int randomNumber = new Random().nextInt(100);
 
-    await client.setPKidDoc('TESTING', randomNumber.toString(), kp);
-    Map<String, dynamic> result = await client.getPKidDoc('TESTING', kp);
+    await client.setPKidDoc('TESTING', randomNumber.toString());
+    Map<String, dynamic> result = await client.getPKidDoc('TESTING');
 
     expect (int.parse(result['data']), randomNumber);
   });

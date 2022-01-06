@@ -19,7 +19,7 @@ class FlutterPkid {
     this.keyPair = keyPair;
   }
 
-  Future<dynamic> getPKidDoc(String key, KeyPair keyPair) async {
+  Future<dynamic> getPKidDoc(String key) async {
     Map<String, String> requestHeaders = {'Content-type': 'application/json'};
 
     Response res;
@@ -80,7 +80,7 @@ class FlutterPkid {
   }
 
   Future<Response> setPKidDoc(
-      String key, String payload, KeyPair keyPair) async {
+      String key, String payload) async {
     int timestamp = new DateTime.now().millisecondsSinceEpoch;
     Map<String, dynamic> requestHeaders = {
       'intent': 'pkid.store',
