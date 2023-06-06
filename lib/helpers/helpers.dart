@@ -11,9 +11,6 @@ Future<String> encryptPKid(String json, Uint8List bobPublicKey) async {
   List<int> message = utf8.encode(json);
   Uint8List encodedMessage = Uint8List.fromList(message);
 
-  // TODO:
-  // Uint8List publicKey = Sodium.cryptoSignEd25519PkToCurve25519(bobPublicKey);
-
   final publicKey = Uint8List(32);
   TweetNaClExt.crypto_sign_ed25519_pk_to_x25519_pk(publicKey, bobPublicKey);
 
@@ -28,10 +25,6 @@ Future<String> decryptPKid(
   Sodium sodium = await SodiumInit.init();
 
   Uint8List cipherEncodedText = base64.decode(cipherText);
-
-  // TODO:
-  // Uint8List publicKey = Sodium.cryptoSignEd25519PkToCurve25519(bobPublicKey);
-  // Uint8List secretKey = Sodium.cryptoSignEd25519SkToCurve25519(bobSecretKey);
 
   final publicKey = Uint8List(32);
   TweetNaClExt.crypto_sign_ed25519_pk_to_x25519_pk(publicKey, bobPublicKey);
