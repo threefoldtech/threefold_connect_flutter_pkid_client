@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="Flutter Plugins" type="FlutterPluginsLibraryType">
     <CLASSES>
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/flutter_sodium-0.2.0" />
       <root url="file://$PROJECT_DIR$" />
-      <root url="file://$USER_HOME$/.pub-cache/git/flutter_sodium-bde4357ee61dec5e27ab4fd74d100b9589b5053f" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
