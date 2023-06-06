@@ -1,18 +1,17 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
-import 'package:flutter_sodium/flutter_sodium.dart';
-import 'package:hex/hex.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
+import 'package:sodium_libs/sodium_libs.dart';
+import 'package:http/http.dart' as http;
+import 'package:convert/convert.dart';
 import 'package:http/http.dart';
 
 import 'helpers/helpers.dart';
 
 class FlutterPkid {
   String pKidUrl = '';
-  KeyPair keyPair = KeyPair(pk: new Uint8List(0), sk: new Uint8List(0));
+  late KeyPair keyPair;
 
   FlutterPkid(String pKidUrl, KeyPair keyPair) {
     this.pKidUrl = pKidUrl;
@@ -24,10 +23,10 @@ class FlutterPkid {
 
     Response res;
     try {
-      print('$pKidUrl/documents/${HEX.encode(keyPair.pk)}/$key');
+      print('$pKidUrl/documents/${hex.encode(keyPair.publicKey)}/$key');
 
       res = await http.get(
-          Uri.parse('$pKidUrl/documents/${HEX.encode(keyPair.pk)}/$key'),
+          Uri.parse('$pKidUrl/documents/${hex.encode(keyPair.publicKey)}/$key'),
           headers: requestHeaders);
     } catch (e) {
       String status = 'No Status';
@@ -37,7 +36,7 @@ class FlutterPkid {
     Uint8List verified;
     try {
       Map<String, dynamic> data = jsonDecode(res.body);
-      verified = await verifyData(data['data'], keyPair.pk);
+      verified = await verifyData(data['data'], keyPair.publicKey);
     } catch (e) {
       return {
         'error': 'Could not verify the data with the given keypair',
@@ -59,8 +58,8 @@ class FlutterPkid {
     String decryptedData;
 
     try {
-      decryptedData =
-          decryptPKid(decodedData['payload'], keyPair.pk, keyPair.sk);
+      decryptedData = await decryptPKid(decodedData['payload'],
+          keyPair.publicKey, keyPair.secretKey.extractBytes());
     } catch (e) {
       return {
         'error': 'could not decrypt data',
@@ -79,14 +78,13 @@ class FlutterPkid {
     };
   }
 
-  Future<Response> setPKidDoc(
-      String key, String payload) async {
+  Future<Response> setPKidDoc(String key, String payload) async {
     int timestamp = new DateTime.now().millisecondsSinceEpoch;
     Map<String, dynamic> requestHeaders = {
       'intent': 'pkid.store',
       'timestamp': timestamp
     };
-    String handledPayload = encryptPKid(payload, keyPair.pk);
+    String handledPayload = await encryptPKid(payload, keyPair.publicKey);
 
     Map<String, dynamic> payloadContainer = {
       'is_encrypted': 1,
@@ -95,15 +93,15 @@ class FlutterPkid {
     };
 
     try {
-      print('$pKidUrl/documents/${HEX.encode(keyPair.pk)}/$key');
+      print('$pKidUrl/documents/${hex.encode(keyPair.publicKey)}/$key');
       return await http.put(
-          Uri.parse('$pKidUrl/documents/${HEX.encode(keyPair.pk)}/$key'),
-          body: json.encode(
-              await signEncode(jsonEncode(payloadContainer), keyPair.sk)),
+          Uri.parse('$pKidUrl/documents/${hex.encode(keyPair.publicKey)}/$key'),
+          body: json.encode(await signEncode(
+              jsonEncode(payloadContainer), keyPair.secretKey.extractBytes())),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization':
-                await signEncode(jsonEncode(requestHeaders), keyPair.sk)
+            'Authorization': await signEncode(
+                jsonEncode(requestHeaders), keyPair.secretKey.extractBytes())
           });
     } catch (e) {
       print(e);
