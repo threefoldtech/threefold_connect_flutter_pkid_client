@@ -35,6 +35,12 @@ class FlutterPkid {
 
     Uint8List verified;
     try {
+      if (res.body.contains('Not found')){
+        return {
+          'error': 'Keypair not found',
+          'verified': false
+        };
+      }
       Map<String, dynamic> data = jsonDecode(res.body);
       verified = await verifyData(data['data'], keyPair.publicKey);
     } catch (e) {
