@@ -13,10 +13,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  sodium_libs: ^2.1.0+1
-  crypto: ^3.0.3
-  http: ^1.0.0
-  convert: ^3.1.1
+  sodium_libs: ^3.4.3+1
+  crypto: ^3.0.6
+  http: ^1.3.0
+  convert: ^3.1.2
   pinenacl: ^0.6.0
   bip39: ^1.0.6
 
