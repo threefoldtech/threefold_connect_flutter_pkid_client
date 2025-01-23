@@ -37,7 +37,7 @@ class FlutterPkid {
     try {
       if (res.body.contains('Not found')){
         return {
-          'error': 'Keypair not found',
+          'error': 'Key is not found',
           'verified': false
         };
       }
